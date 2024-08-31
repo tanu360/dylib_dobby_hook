@@ -1,9 +1,3 @@
-//
-//  CommonRetOC.h
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/7/27.
-//
 
 #ifndef CommonRetOC_h
 #define CommonRetOC_h

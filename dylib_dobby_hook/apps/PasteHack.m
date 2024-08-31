@@ -23,13 +23,6 @@
 
 int (*validSubscriptionOri)(void);
 
-//int validSubscriptionNew(int arg0, int arg1) {
-//    return 1;
-//}
-//int _cloudKitNew(int arg0, int arg1) {
-//    return 1;
-//}
-
 - (int) hook_ubiquityIdentityToken {
     NSLog(@">>>>>> hook_ubiquityIdentityToken");
     return 0;
@@ -39,13 +32,6 @@ int (*validSubscriptionOri)(void);
     
 #if defined(__arm64__) || defined(__aarch64__)
     
-    // hook 是否有效订阅
-    //    intptr_t validSubscription = [MemoryUtils getPtrFromAddress:0x1002e14dc];
-    //    DobbyHook(validSubscription, validSubscriptionNew, (void *)&validSubscriptionOri);
-    // hook cloudkit
-    //    intptr_t _cloudKit = [MemoryUtils getPtrFromAddress:0x1002b7a68];
-    //    DobbyHook(_cloudKit, ret1, (void *)&_cloudKitOri);
-    
     [MemoryUtils hookInstanceMethod:objc_getClass("NSFileManager") originalSelector:NSSelectorFromString(@"ubiquityIdentityToken") swizzledClass:[self class] swizzledSelector:NSSelectorFromString(@"hook_ubiquityIdentityToken")];
     
     NSString *searchFilePath = [[Constant getCurrentAppPath] stringByAppendingString:@"/Contents/MacOS/Paste"];
@@ -54,7 +40,6 @@ int (*validSubscriptionOri)(void);
     hookSubscription(searchFilePath, fileOffset);
     
 #elif defined(__x86_64__)
-    // TODO Support __x86_64__
 #endif
     
     return YES;

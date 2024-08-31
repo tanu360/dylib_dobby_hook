@@ -1,9 +1,3 @@
-//
-//  CommonRetOC.m
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/7/27.
-//
 
 #import <Foundation/Foundation.h>
 #import "CommonRetOC.h"
@@ -95,13 +89,11 @@
 
 + (id)hook_containerWithIdentifier:identifier {
     NSLog(@">>>>>> hook_containerWithIdentifier identifier = %@",identifier);
-    // [CKContainer containerWithIdentifier:identifier];
     return [MockCKContainer containerWithIdentifier:identifier];
 
 }
 + (id)hook_defaultContainer {
     NSLog(@">>>>>> hook_defaultContainer");
-    // [CKContainer defaultContainer];
     return [MockCKContainer defaultContainer];
 
 }

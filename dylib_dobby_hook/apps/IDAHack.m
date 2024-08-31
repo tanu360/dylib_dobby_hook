@@ -1,9 +1,3 @@
-//
-//  IDAHack.m
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/8/10.
-//
 
 #import <Foundation/Foundation.h>
 #import "dobby.h"
@@ -21,7 +15,6 @@
 @implementation IDAHack
 
 - (NSString *)getAppName {
-//    >>>>>> AppName is [com.hexrays.ida64],Version is [9.0.240807], myAppCFBundleVersion is [240807].
     return @"com.hexrays.ida64";
 }
 
@@ -30,10 +23,6 @@
     return @"9.";
 }
 - (BOOL)hack {
-    
-   
-    // libida64.dylib/libida64.dylib
-    // ED FD 42 5C F9 78 -> ED FD 42 CB F9 78
 
 
     DobbyHook(objc_addExceptionHandler, (void *)ret0, NULL);

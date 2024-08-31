@@ -1,7 +1,3 @@
-//
-//  HackProtocolDefault.h
-//  dylib_dobby_hook
-//
 
 #ifndef HackProtocolDefault_h
 #define HackProtocolDefault_h

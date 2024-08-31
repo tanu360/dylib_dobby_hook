@@ -1,9 +1,3 @@
-//
-//  MockCKDatabase.m
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/8/3.
-//
 
 #import <Foundation/Foundation.h>
 #import <CloudKit/CloudKit.h>
@@ -12,10 +6,7 @@
 @implementation MockCKDatabase
 
 - (instancetype)initDatabase {
-    // self = [super init];
     if (self) {
-        // TODO: 是否需要考虑数据持久华 ?
-        // _records = [self loadPersistedDataForKey:@"records"];
 
         _records = [NSMutableDictionary dictionary];
     }
@@ -89,7 +80,6 @@
           isCancelled ? @"YES" : @"NO");
    
     if (isAsynchronous && [operation isReady]) {
-        // 模拟操作执行
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             if (operation.completionBlock) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -170,21 +160,6 @@
 }
 
 #pragma mark - Persistence Methods
-//
-//- (void)persistData:(NSDictionary *)data forKey:(NSString *)key {
-//    NSString *path = [self pathForKey:key];
-//    [NSKeyedArchiver archiveRootObject:data toFile:path];
-//}
-//
-//- (NSMutableDictionary *)loadPersistedDataForKey:(NSString *)key {
-//    NSString *path = [self pathForKey:key];
-//    return [NSKeyedUnarchiver unarchiveObjectWithFile:path];
-//}
-//
-//- (NSString *)pathForKey:(NSString *)key {
-//    NSString *documentDirectory = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
-//    return [documentDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.dat", key]];
-//}
 
 
 @end

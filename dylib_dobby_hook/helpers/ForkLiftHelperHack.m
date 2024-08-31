@@ -1,10 +1,3 @@
-//
-//  ForkLiftHelperHack.m
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/7/27.
-//
-
 #import <Foundation/Foundation.h>
 #import "Constant.h"
 #import "MemoryUtils.h"
@@ -35,20 +28,6 @@ static IMP listenerIMP;
 - (NSString *)getSupportAppVersion {
     return @"4.";
 }
-
-
-//- (BOOL)hk_listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
-//
-//    NSLog(@">>>>>> hk_listener");
-//
-//    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:
-//                                           NSProtocolFromString(@"_TtP31com_binarynights_ForkLiftHelper21ForkLiftHelperProtcol_")
-//    ];
-//    newConnection.exportedObject = self;
-//    [newConnection resume];
-//
-//    return YES;
-//}
 
 
 OSStatus hk_SecCodeCopySigningInformation_forklift(SecCodeRef codeRef, SecCSFlags flags, CFDictionaryRef *signingInfo) {

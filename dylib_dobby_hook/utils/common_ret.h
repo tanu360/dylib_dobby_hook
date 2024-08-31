@@ -1,9 +1,3 @@
-//
-//  common_ret.h
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/4/9.
-//
 
 #ifndef common_ret_h
 #define common_ret_h
@@ -38,8 +32,6 @@ int ret2 (void);
 int ret1 (void);
 int ret0 (void);
 void ret(void);
-
-// AntiAntiDebug 反反调试相关
 typedef int (*ptrace_ptr_t)(int _request, pid_t _pid, caddr_t _addr, int _data);
 int my_ptrace(int _request, pid_t _pid, caddr_t _addr, int _data);
 extern ptrace_ptr_t orig_ptrace;
@@ -97,10 +89,6 @@ kern_return_t my_task_swap_exception_ports
      thread_state_flavor_array_t old_flavors
  );
 extern task_swap_exception_ports_ptr_t orig_task_swap_exception_ports;
-
-
-
-// Apple Sec..
 typedef OSStatus (*SecCodeCheckValidityWithErrors_ptr_t)(SecCodeRef code, SecCSFlags flags, SecRequirementRef requirement, CFErrorRef *errors);
 OSStatus hk_SecCodeCheckValidityWithErrors(SecCodeRef code, SecCSFlags flags, SecRequirementRef requirement, CFErrorRef *errors);
 extern SecCodeCheckValidityWithErrors_ptr_t SecCodeCheckValidityWithErrors_ori;
@@ -111,7 +99,4 @@ extern SecCodeCopySigningInformation_ptr_t SecCodeCopySigningInformation_ori;
 
 
 NSString *love69(NSString *input);
-
-//// 声明全局的邮件地址
-//extern char *global_dylib_name;
 #endif /* common_ret_h */

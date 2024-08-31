@@ -1,9 +1,3 @@
-//
-//  InfuseHack.m
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/5/11.
-//
 
 #import <Foundation/Foundation.h>
 #import "Constant.h"
@@ -25,7 +19,6 @@
 
 
 - (NSString *)getAppName {
-    // 2024-05-11 15:45:29.526 Infuse[84842:2247193] >>>>>> AppName is [com.firecore.infuse],Version is [7.7.5], myAppCFBundleVersion is [7.7.4827].
     return @"com.firecore.infuse";
 }
 

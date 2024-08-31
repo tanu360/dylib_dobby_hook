@@ -1,9 +1,3 @@
-//
-//  CleanShotXHack.m
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/7/19.
-//
 
 #import <Foundation/Foundation.h>
 #import "Constant.h"
@@ -27,7 +21,6 @@ static IMP listenerIMP;
 
 
 - (NSString *)getAppName {
-    // com.binarynights.ForkLiftHelper
     return @"com.binarynights.ForkLift";
 }
 
@@ -40,8 +33,6 @@ static IMP listenerIMP;
 }
 
 - (BOOL)hack {
-   
-    // 自定义日期字符串
     NSDictionary *registrationDataDict = @{
         @"name": [Constant G_EMAIL_ADDRESS],
         @"quantity": @520,

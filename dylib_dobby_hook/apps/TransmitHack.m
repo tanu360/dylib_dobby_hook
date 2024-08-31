@@ -1,9 +1,3 @@
-//
-//  TransmitHack.m
-//  dylib_dobby_hook
-//
-//  Created by artemis on 2024/1/15.
-//
 
 #import <Foundation/Foundation.h>
 #import "Constant.h"
@@ -26,7 +20,6 @@
 }
 
 - (NSString *)getSupportAppVersion {
-    // 5.10.4
     return @"5.";
 }
 
@@ -35,11 +28,6 @@
 - (void)hk_updateCountdownView:(uint64_t)arg1  {
     NSLog(@">>>>>> Swizzled hk_updateCountdownView method called");
     NSLog(@">>>>>> self.className : %@", self.className);
-//    SEL selector = NSSelectorFromString(@"trialTitleBarViewController");
-//    if ([self respondsToSelector:selector]) {
-//        id trialTitleBarViewController = [self performSelector:selector];
-//        NSLog(@">>>>>> trialTitleBarViewController : %@", trialTitleBarViewController);
-//    }
 }
 
 - (void)hk_startUpdater {
@@ -73,15 +61,6 @@ int hook_TRTrialStatus(void){
     NSString *searchMachineCode = @"55 48 89 E5 41 57 41 56 41 55 41 54 53 50 4C 8B ?? ?? ?? ?? ?? 49 8B 3E";
 
 #endif
-    // void __cdecl -[TRDocument updateCountdownView](TRDocument *self, SEL a2)
-//    [MemoryUtils hookInstanceMethod:
-//                objc_getClass("TRDocument")
-//                originalSelector:NSSelectorFromString(@"updateCountdownView")
-//                swizzledClass:[self class]
-//                // swizzledSelector:NSSelectorFromString(@"hk_updateCountdownView:arg2:")
-//                swizzledSelector:NSSelectorFromString(@"hk_updateCountdownView:")
-//
-//    ];
     
     [MemoryUtils hookInstanceMethod:
                 objc_getClass("SPUStandardUpdaterController")
@@ -108,37 +87,6 @@ int hook_TRTrialStatus(void){
     int imageIndex = [MemoryUtils indexForImageWithName:@"Transmit"];
     intptr_t _hook_TRTrialStatus = [MemoryUtils getPtrFromGlobalOffset:imageIndex targetFunctionOffset:(uintptr_t)globalOffset reduceOffset:(uintptr_t)fileOffset];
     DobbyHook((void *)_hook_TRTrialStatus, (void *)hook_TRTrialStatus, (void *)&hook_TRTrialStatus_ori);
-    
-    
-    // license info
-//    __text:000000010002FAFB ; void __cdecl -[TransmitDelegate showLicense:](TransmitDelegate *self, SEL, id)
-//    rax = [NSUserDefaults standardUserDefaults];
-//    r15 = [[rax stringForKey:@"RegistrationUsername"] retain];
-//    rax = [r14 licenseWindowController];
-//    rax = [rax retain];
-//    [rax setName:r15];
-//    [rax release];
-//    [r15 release];
-//    [rbx release];
-//    rax = [NSUserDefaults standardUserDefaults];
-//    rax = [rax retain];
-//    var_30 = [[rax stringForKey:@"RegistrationDate"] retain];
-//    [rax release];
-//    if (var_30 != 0x0) {
-//            r12 = objc_alloc_init(@class(NSDateFormatter));
-//            rax = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
-//            rax = [rax retain];
-//            [r12 setTimeZone:rax];
-//            [rax release];
-//            [r12 setDateFormat:@"yyyy-MM-dd HH:mm:ss Z"];
-//            rbx = [[r12 dateFromString:var_30] retain];
-//            rax = [r14 licenseWindowController];
-//            rax = [rax retain];
-//            [rax setRegistrationDate:rbx];
-//            [rax release];
-//            [rbx release];
-//            [r12 release];
-//    }
     
     NSUserDefaults *defaults  = [NSUserDefaults standardUserDefaults];
     [defaults setObject:[Constant G_EMAIL_ADDRESS] forKey:@"RegistrationUsername"];

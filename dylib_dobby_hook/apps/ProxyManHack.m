@@ -1,9 +1,3 @@
-//
-//  ProxyManHack.m
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/4/9.
-//
 
 #import <Foundation/Foundation.h>
 #import "Constant.h"
@@ -26,7 +20,6 @@
 static IMP viewDidLoadIMP;
 
 - (NSString *)getAppName {
-    // >>>>>> AppName is [com.proxyman.NSProxy],Version is [5.1.1], myAppCFBundleVersion is [50101].
     return @"com.proxyman.NSProxy";
 }
 
@@ -40,11 +33,8 @@ intptr_t getProxyManAppStruct(void) {
 
 
     intptr_t app = getProxyManAppStructOriginalAddress();
-    // 得到 App 里面的 license 对象
     intptr_t *licenseServer = app + 0xA0;
-    // 得到 license 里面 112 偏移处的 licensekey 字段
     intptr_t *licenseKey = *licenseServer + 0x70;
-    // 修改授权信息为激活状态
     *licenseKey = 0x0;
     return app;
 }
@@ -69,8 +59,6 @@ intptr_t handleHelper(intptr_t a1, intptr_t a2, intptr_t a3) {
 
 - (void) hook_viewDidLoad{
     ((void*(*)(id, SEL))viewDidLoadIMP)(self, _cmd);
-    // objc_ivar_offset__TtC8Proxyman25PremiumPlanViewController_registerAtLbl:
-    // -[_TtC8Proxyman25PremiumPlanViewController registerAtLbl]:        // -[Proxyman.PremiumPlanViewController registerAtLbl]
     NSTextField *registerAtLbl =  [MemoryUtils getInstanceIvar:self ivarName:"registerAtLbl"];
     NSView *expiredLicenseInfoStackView = [MemoryUtils getInstanceIvar:self ivarName:"expiredLicenseInfoStackView"];
     NSTextField *licenseUntilLbl = [MemoryUtils getInstanceIvar:self ivarName:"licenseUntilLbl"];
@@ -109,65 +97,19 @@ intptr_t handleHelper(intptr_t a1, intptr_t a2, intptr_t a3) {
     ];
     intptr_t _patch_1 = [MemoryUtils getPtrFromGlobalOffset:0 targetFunctionOffset:(uintptr_t)[patch_1Offsets[0] unsignedIntegerValue] reduceOffset:(uintptr_t)fileOffset];
     DobbyHook((void *)_patch_1, getProxyManAppStruct, &getProxyManAppStructOriginalAddress);
-
-//
-//#if defined(__arm64__) || defined(__aarch64__)
-//    NSString *patch_2Code = @"55 48 89 E5 41 57 41 56 41 54 53 41 89 F4 ?? 89 ?? 48 89 D7 FF 15 ?? ?? ?? 00 ?? 89 ?? ?? 8D ?? 30 E8 ?? ?? ?? 00 49 89 C6 ?? 8B ?? 20 48 8D 3D ?? ?? ?? 00 ?? 89";
-//#elif defined(__x86_64__)
-//    NSString *patch_2Code = @"FF 03 01 D1 F6 57 01 A9 F4 4F 02 A9 FD 7B 03 A9 FD C3 00 91 F6 03 01 AA F5 03 00 AA E0 03 02 AA ?? ?? ?? 94 F3 03 00 AA A0 C2 00 91 ?? ?? ?? 94";
-//#endif
-//    NSArray *patch_2Offsets =[MemoryUtils searchMachineCodeOffsets:
-//                    searchFilePath
-//                                                               machineCode:patch_2Code
-//                                                                     count:(int)1
-//    ];
-//    intptr_t _patch_2 = [MemoryUtils getPtrFromGlobalOffset:0 targetFunctionOffset:(uintptr_t)[patch_2Offsets[0] unsignedIntegerValue] reduceOffset:(uintptr_t)fileOffset];
-//    DobbyHook((void *)_patch_2, handleHelper, nil);
-    
-   
-    // Version 5.3.0 (50300)
-    // ProxymanCore.AppConfiguration.isHideExpireLicenseBadge.getter : Swift.Bool
-    // 如果返回 false , App StatusBar 会触发 Warning 按钮
-//#if defined(__arm64__) || defined(__aarch64__)
-//    NSString *patch_3Code = @"FF 83 01 D1 F8 5F 02 A9 F6 57 03 A9 F4 4F 04 A9 FD 7B 05 A9 FD 43 01 91 93 22 20 91 E1 23 00 91 E0 03 13 AA 02 00 80 D2 03 00 80 D2";
-//#elif defined(__x86_64__)
-//    NSString *patch_3Code = @"55 48 89 E5 41 57 41 56 41 55 41 54 53 48 83 EC 18 49 8D BD 08 08 00 00";
-//#endif
-//    NSArray *patch_3Offsets =[MemoryUtils searchMachineCodeOffsets:
-//                                  proxymanCoreFilePath
-//                                       machineCode:patch_3Code
-//                                             count:(int)1
-//    ];
-//    intptr_t _patch_3 = [MemoryUtils getPtrFromGlobalOffset:proxymanCoreIndex targetFunctionOffset:(uintptr_t)[patch_3Offsets[0] unsignedIntegerValue] reduceOffset:(uintptr_t)proxymanCoreFileOffset];
-//    DobbyHook((void *)_patch_3, ret1, nil);
-    
-    
-    // 计算时间差
     NSDate *startTime = [NSDate date];
-   // 直接 hook 导入表函数,似乎更优雅
     void* isHideExpireLicenseBadge = DobbySymbolResolver(
                                      "/Contents/Frameworks/ProxymanCore.framework/Versions/A/ProxymanCore", "_$s12ProxymanCore16AppConfigurationC24isHideExpireLicenseBadgeSbvg"
                                      );
-    // 记录结束时间
     NSDate *endTime = [NSDate date];
-    // 计算时间差
     NSTimeInterval executionTime2 = [endTime timeIntervalSinceDate:startTime];
     NSLog(@"DobbySymbolResolver Execution Time: %f seconds", executionTime2);
     DobbyHook(isHideExpireLicenseBadge, ret1, nil);
-
-//    TODO: Undefined symbol: _DobbyImportTableReplace
-//    DobbyImportTableReplace(
-//                            "/Contents/Frameworks/ProxymanCore.framework/Versions/A/ProxymanCore",
-//                            "_$s12ProxymanCore16AppConfigurationC24isHideExpireLicenseBadgeSbvg",
-//                            (void *)ret1,
-//                            nil
-//                            );
 
     return YES;
 }
 
 - (BOOL)swizzled_isHideExpireLicenseBadge {
-    // 在这里实现您自己的逻辑，返回您期望的结果
     return YES; // 示例中返回固定的值，您需要根据您的实际需求进行逻辑处理
 }
 

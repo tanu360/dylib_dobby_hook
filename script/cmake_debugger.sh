@@ -1,9 +1,15 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m'
+
 current_path=$PWD
 
 app_name="DevUtils"
-#inject_bin="/Applications/iMazing.app/Contents/Frameworks/GPod.framework/Versions/A/GPod"
 
-echo ">>>>>> app_name is ${app_name}"
+printf "\n${YELLOW}🔎 app_name: ${app_name}${NC}\n"
 
 dylib_name="dylib_dobby_hook"
 prefix="lib"
@@ -13,10 +19,10 @@ chmod a+x ${insert_dylib}
 
 app_bundle_path="/Applications/${app_name}.app/Contents/MacOS"
 app_bundle_framework="/Applications/${app_name}.app/Contents/Frameworks/"
-echo ">>>>>> app_bundle_framework is ${app_bundle_framework}"
+printf "${YELLOW}🔎 app_bundle_framework: ${app_bundle_framework}${NC}\n"
 
 if [ ! -d "$app_bundle_framework" ]; then
-  mkdir -p "$app_bundle_framework"
+    mkdir -p "$app_bundle_framework"
 fi
 
 if [ -n "$inject_bin" ]; then
@@ -25,17 +31,13 @@ else
     app_executable_path="${app_bundle_path}/${app_name}"
 fi
 
-
 app_executable_backup_path="${app_executable_path}_Backup"
-echo ">>>>>> app_executable_path is ${app_executable_path}"
+printf "${YELLOW}🔎 app_executable_path: ${app_executable_path}${NC}\n"
 
-if [ ! -f "$app_executable_backup_path" ];
-then
+if [ ! -f "$app_executable_backup_path" ]; then
     cp "$app_executable_path" "$app_executable_backup_path"
 fi
 
 "${insert_dylib}" --weak --all-yes "${current_path}/../release/${prefix}${dylib_name}.dylib" "$app_executable_backup_path" "$app_executable_path"
 
-echo ">>>>>> hack [${app_name}] completed"
-
-
+printf "${GREEN}✅ [${app_name}] - dylib_dobby_hook Injection completed successfully.${NC}\n"

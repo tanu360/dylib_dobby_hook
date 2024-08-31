@@ -1,9 +1,3 @@
-//
-//  MemoryUtils.m
-//  dylib_dobby_hook
-//
-//  Created by artemis on 2024/1/15.
-//
 
 #import <Foundation/Foundation.h>
 #import "MemoryUtils.h"
@@ -71,11 +65,8 @@ NSString * CACHE_MACHINE_CODE_KEY = @"All-Offsets";
         
         mach_port_t selfTask = mach_task_self();
         kern_return_t kr;
-
-        // 更改页的内存保护
         kr = mach_vm_protect(selfTask, (mach_vm_address_t)pageStart, pageSize, FALSE, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_COPY);
         if (kr != KERN_SUCCESS) {
-            // 错误处理
             NSLog(@"xxxxxxxxxxxxxxxxerr");
             return;
         }
@@ -87,11 +78,8 @@ NSString * CACHE_MACHINE_CODE_KEY = @"All-Offsets";
             [scanner scanHexInt:&byteValue];
             bytes[i] = (unsigned char)byteValue;
         }
-         
-        // 恢复页的内存保护
         kr = mach_vm_protect(selfTask, (mach_vm_address_t)pageStart, pageSize, FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
         if (kr != KERN_SUCCESS) {
-            // 错误处理
             return;
         }
         
@@ -125,15 +113,11 @@ NSData *machineCode2Bytes(NSString *hexString) {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
     NSMutableDictionary *allOffsetsMap = [NSMutableDictionary dictionaryWithDictionary:[defaults objectForKey:CACHE_MACHINE_CODE_KEY]];
-    
-    // Make sure versionMap is mutable
     NSMutableDictionary *versionMap = [allOffsetsMap objectForKey:appVersion];
     if (!versionMap) {
         versionMap = [NSMutableDictionary dictionary];
         [allOffsetsMap setObject:versionMap forKey:appVersion];
     }
-    
-    // Convert versionMap to mutable if needed
     if (![versionMap isKindOfClass:[NSMutableDictionary class]]) {
         versionMap = [versionMap mutableCopy];
         [allOffsetsMap setObject:versionMap forKey:appVersion];
@@ -191,9 +175,6 @@ NSData *machineCode2Bytes(NSString *hexString) {
          BOOL isMatch = YES;
          for (NSUInteger j = 0; j < searchLength; j++) {
              uint8_t fileByte = ((const uint8_t *)[fileData bytes])[i + j];
-             // if (i>364908 && i<364930) {
-             //     NSLog(@">>>>>> %d : %p",i,fileByte);
-             // }
              uint8_t searchByte = ((const uint8_t *)[searchBytes bytes])[j];
              if (searchByte != 0x90 && fileByte != searchByte) {
                  isMatch = NO;
@@ -260,10 +241,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
         }
     }else {
         NSLog(@">>>>>> is not FAT");
-        // magic == MH_MAGIC_64 || magic == MH_CIGAM_64)
-        // /* Constant for the magic field of the mach_header (32-bit architectures) */
-        // #define    MH_MAGIC    0xfeedface    /* the mach magic number */
-        // #define    MH_CIGAM    0xcefaedfe    /* NXSwapInt(MH_MAGIC) */
         struct mach_header *header = (struct mach_header *)fileData.bytes;
         cpu_type_t cpuType = header->cputype;
         cpu_subtype_t cpuSubtype = header->cpusubtype;
@@ -313,9 +290,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
     BOOL isDebugging = [Constant isDebuggerAttached];
     intptr_t slide = 0;
     if(!isDebugging){
-        // NSLog(@"The current app running with debugging");
-        // 不知道为什么
-        // 如果是调试模式, 计算地址不需要 + _dyld_get_image_vmaddr_slide,否则会出错
         slide = _dyld_get_image_vmaddr_slide(index);
 
     }
@@ -327,10 +301,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
 }
 
 + (uintptr_t)getPtrFromGlobalOffset:(uint32_t)index targetFunctionOffset:(uintptr_t)targetFunctionOffset reduceOffset:(uintptr_t)reduceOffset {
-    
-    // arm : 0x100000000 + 0xa91360 - 0x960000
-    // x86 : baseAddress + 0x14ef90 - 0x4000
-    // local offset + reduceOffset = global offset
     uintptr_t result  = 0;
     if ([Constant isArm]) {
         if([Constant isDebuggerAttached]){
@@ -372,7 +342,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
 
 
 + (void) listAllPropertiesMethodsAndVariables:(Class) cls {
-    // 获取类的属性列表
     unsigned int propertyCount;
     objc_property_t *properties = class_copyPropertyList(cls, &propertyCount);
     NSLog(@"Properties for class %@", NSStringFromClass(cls));
@@ -382,8 +351,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
         NSLog(@"- %@", [NSString stringWithUTF8String:propertyName]);
     }
     free(properties);
-    
-    // 获取类的实例变量列表
     unsigned int ivarCount;
     Ivar *ivars = class_copyIvarList(cls, &ivarCount);
     NSLog(@"Instance Variables for class %@", NSStringFromClass(cls));
@@ -393,8 +360,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
         NSLog(@"- %s", ivarName);
     }
     free(ivars);
-    
-    // 获取类的实例方法列表
     unsigned int instanceMethodCount;
     Method *instanceMethods = class_copyMethodList(cls, &instanceMethodCount);
     NSLog(@"Instance Methods for class %@", NSStringFromClass(cls));
@@ -403,8 +368,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
         NSLog(@"- %@", NSStringFromSelector(method_getName(method)));
     }
     free(instanceMethods);
-    
-    // 获取类的方法列表
     unsigned int methodCount;
     Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
     NSLog(@"Class Methods for class %@", NSStringFromClass(cls));
@@ -417,22 +380,13 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
 
 + (void)inspectObjectWithAddress:(void *)address {
     id object = (__bridge id)address;
-    // LicenseModel *license = (__bridge LicenseModel *)addressPtr;
-    
-    // 获取对象的十六进制地址
     uintptr_t ptrValue = (uintptr_t)address;
     NSLog(@">>>>>> Address: 0x%lx", ptrValue);
-    
-    // 获取对象的类名
     NSString *className = NSStringFromClass([object class]);
     NSLog(@">>>>>> Class: %@", className);
-
-    // %@ 格式说明符将其作为对象进行输出。在此情况下，NSLog 将会调用对象的 description 方法来获取其字符串表示形式，并将其输出到控制台。
     NSLog(@">>>>>> className.description: %@", address);
     NSString *objectDescription = [object description];
     NSLog(@">>>>>> Object Description: %@", objectDescription);
-
-    // 获取对象的属性与值
     unsigned int count;
     objc_property_t *properties = class_copyPropertyList([object class], &count);
 
@@ -473,17 +427,13 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
     NSImage *image = [NSImage imageNamed:NSImageNameCaution];
     [alert setIcon:image];
     NSInteger response = [alert runModal];
-    // Handle button clicks
     if (response == NSAlertFirstButtonReturn) {
-        // OK button clicked
     }  else if (response == NSAlertSecondButtonReturn) {
-        // 提交 Issue button clicked
         NSString *urlString = @"https://github.com/marlkiller/dylib_dobby_hook/issues/new";
         NSURL *url = [NSURL URLWithString:urlString];
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         [workspace openURL:url];
     }else if (response == NSAlertThirdButtonReturn) {
-        // 提交 Issue button clicked
         exit(0);
     }
 }
@@ -582,7 +532,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
     IMP imp = nil;
     if (originalMethod && swizzledImplementation) {
         imp = method_getImplementation(originalMethod);
-        // 替换对象方法
         class_replaceMethod(originalClass, originalSelector, swizzledImplementation, types);
     } else {
         NSLog(@">>>>>> Failed to replace instance method.");
@@ -620,7 +569,6 @@ NSArray<NSDictionary *> *getArchitecturesInfoForFile(NSString *filePath) {
     IMP imp = nil;
     if (originalMethod && swizzledImplementation) {
         imp = method_getImplementation(originalMethod);
-        // 替换类方法
         class_replaceMethod(object_getClass(originalClass), originalSelector, swizzledImplementation, types);
     } else {
         NSLog(@">>>>>> Failed to replace class method.");

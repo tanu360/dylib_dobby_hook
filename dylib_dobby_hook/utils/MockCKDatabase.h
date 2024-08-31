@@ -1,9 +1,3 @@
-//
-//  MockCKDatabase.h
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/8/3.
-//
 #import <CloudKit/CloudKit.h>
 
 #ifndef MockCKDatabase_h

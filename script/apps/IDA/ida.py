@@ -18,20 +18,6 @@ license = {
                 "issued_on": "2024-08-10 00:00:00",
                 "owner": "cracked by alula :3",
                 "add_ons": [
-                    # {
-                    #     "id": "48-1337-DEAD-01",
-                    #     "code": "HEXX86L",
-                    #     "owner": "48-0000-0000-00",
-                    #     "start_date": "2024-08-10 00:00:00",
-                    #     "end_date": "2033-12-31 23:59:59",
-                    # },
-                    # {
-                    #     "id": "48-1337-DEAD-02",
-                    #     "code": "HEXX64L",
-                    #     "owner": "48-0000-0000-00",
-                    #     "start_date": "2024-08-10 00:00:00",
-                    #     "end_date": "2033-12-31 23:59:59",
-                    # },
                 ],
                 "features": [],
             }
@@ -57,19 +43,6 @@ def add_every_addon(license):
         "HEXRV64",
         "HEXARC",
         "HEXARC64",
-        # Probably cloud?
-        # "HEXCX86",
-        # "HEXCX64",
-        # "HEXCARM",
-        # "HEXCARM64",
-        # "HEXCMIPS",
-        # "HEXCMIPS64",
-        # "HEXCPPC",
-        # "HEXCPPC64",
-        # "HEXCRV",
-        # "HEXCRV64",
-        # "HEXCARC",
-        # "HEXCARC64",
     ]
 
     i = 0
@@ -84,18 +57,6 @@ def add_every_addon(license):
                 "end_date": "2033-12-31 23:59:59",
             }
         )
-    # for addon in addons:
-    #     for platform in platforms:
-    #         i += 1
-    #         license["payload"]["licenses"][0]["add_ons"].append(
-    #             {
-    #                 "id": f"48-1337-DEAD-{i:02}",
-    #                 "code": addon + platform,
-    #                 "owner": license["payload"]["licenses"][0]["id"],
-    #                 "start_date": "2024-08-10 00:00:00",
-    #                 "end_date": "2033-12-31 23:59:59",
-    #             }
-    #         )
 
 add_every_addon(license)
 
@@ -107,8 +68,6 @@ def buf_to_bigint(buf):
 
 def bigint_to_buf(i):
     return i.to_bytes((i.bit_length() + 7) // 8, byteorder="little")
-
-# Yup, you only have to patch 5c -> cb in libida64.so
 pub_modulus_hexrays = buf_to_bigint(
     bytes.fromhex(
         "edfd425cf978546e8911225884436c57140525650bcf6ebfe80edbc5fb1de68f4c66c29cb22eb668788afcb0abbb718044584b810f8970cddf227385f75d5dddd91d4f18937a08aa83b28c49d12dc92e7505bb38809e91bd0fbd2f2e6ab1d2e33c0c55d5bddd478ee8bf845fcef3c82b9d2929ecb71f4d1b3db96e3a8e7aaf93"
@@ -143,20 +102,13 @@ def sign_hexlic(payload: dict) -> str:
     data_str = json_stringify_alphabetical(data)
 
     buffer = bytearray(128)
-    # first 33 bytes are random
     for i in range(33):
         buffer[i] = 0x42
-
-    # compute sha256 of the data
     sha256 = hashlib.sha256()
     sha256.update(data_str.encode())
     digest = sha256.digest()
-
-    # copy the sha256 digest to the buffer
     for i in range(32):
         buffer[33 + i] = digest[i]
-
-    # encrypt the buffer
     encrypted = encrypt(buffer)
 
     return encrypted.hex().upper()
@@ -187,15 +139,9 @@ def generate_patched_dll(filename):
 
         print(f"Generated modulus patch to {patched_filename}! To apply the patch, replace the original file with the patched file")
 
-# message = bytes.fromhex(license["signature"])
-# print(decrypt(message).hex())
-# print(encrypt(decrypt(message)).hex())
-
 license["signature"] = sign_hexlic(license["payload"])
 
 serialized = json_stringify_alphabetical(license)
-
-# write to ida.hexlic
 filename = "ida.hexlic"
 
 with open(filename, "w") as f:

@@ -1,9 +1,3 @@
-//
-//  MockCKContainer.h
-//  dylib_dobby_hook
-//
-//  Created by voidm on 2024/8/3.
-//
 #import <CloudKit/CloudKit.h>
 #import "MockCKDatabase.h"
 
@@ -12,40 +6,18 @@
 
 @interface MockCKContainer : CKContainer
 
-//    [TEST]
-//    CKContainer* container = [CKContainer containerWithIdentifier:@"iCloud.com.example.myapp"];
-//    CKDatabase *publicDatabase = [container publicCloudDatabase];
-//    CKRecordID *artworkRecordID = [[CKRecordID alloc] initWithRecordName:@"123456"];
-//    CKRecord *artworkRecord = [[CKRecord alloc] initWithRecordType:@"Artwork" recordID:artworkRecordID];
-//    artworkRecord[@"title" ] = @"this is title";
-//    [publicDatabase saveRecord:artworkRecord completionHandler:^(CKRecord *record, NSError *error){
-//        if (error) {
-//            NSLog(@">>>>>> saveRecord error = %@",error);
-//        }
-//    }];
-//    [publicDatabase fetchRecordWithID:artworkRecordID completionHandler:^(CKRecord * _Nullable record, NSError * _Nullable error) {
-//        if (error) {
-//            NSLog(@">>>>>> fetchRecordWithID error = %@",error);
-//        }else {
-//
-//            NSLog(@">>>>>> fetchRecordWithID record = %@",record);
-//        }
-//    }];
-
-@property (nonatomic, strong) NSDictionary *options;
-@property (nonatomic, readonly) MockCKDatabase *privateDatabase;
-@property (nonatomic, readonly) MockCKDatabase *publicDatabase;
-@property (nonatomic, strong) NSString *identifier;
+@property(nonatomic, strong) NSDictionary *options;
+@property(nonatomic, readonly) MockCKDatabase *privateDatabase;
+@property(nonatomic, readonly) MockCKDatabase *publicDatabase;
+@property(nonatomic, strong) NSString *identifier;
 
 + (instancetype)defaultContainer;
 + (instancetype)containerWithIdentifier:(NSString *)identifier;
 
-
 - (CKDatabase *)privateCloudDatabase;
 - (CKDatabase *)publicCloudDatabase;
 
-
-- (void)accountStatusWithCompletionHandler:(void (NS_SWIFT_SENDABLE ^)(CKAccountStatus accountStatus, NSError * error))completionHandler;
+- (void)accountStatusWithCompletionHandler:(void(NS_SWIFT_SENDABLE ^)(CKAccountStatus accountStatus, NSError *error))completionHandler;
 
 @end
 
