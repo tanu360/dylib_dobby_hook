@@ -17,7 +17,7 @@
 3. release:  build 后的成品
 4. script:
     - hack.sh 自定义注入脚本 `sudo sh hack.sh`
-    - auto_hack.sh 妹妹全自动注入脚本 `sudo sh auto_hack.sh`
+    - start.sh 妹妹全自动注入脚本 `sudo sh start.sh`
 5. tools: insert_dylib 开源注入工具
 
 ## Feat
