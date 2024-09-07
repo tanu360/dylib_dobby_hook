@@ -1,6 +1,5 @@
-
 #import <Foundation/Foundation.h>
-#import "encryp_utils.h"
+#import "EncryptionUtils.h"
 #import <Security/Security.h>
 #import <IOKit/IOKitLib.h>
 #import <stdio.h>
@@ -15,19 +14,17 @@
 @implementation EncryptionUtils
 
 + (NSString *)generateTablePlusDeviceId{
-
     CWWiFiClient *wifiClient = [CWWiFiClient sharedWiFiClient];
     CWInterface *wifiInterface = [wifiClient interface];
     NSString *hardwareAddress = [wifiInterface hardwareAddress];
 
     NSString *serialNumber = nil;
-    
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= 120000) // Before macOS 12 Monterey
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= 120000)
     io_service_t platformExpert = IOServiceGetMatchingService(kIOMainPortDefault,
-                                                              IOServiceMatching("IOPlatformExpertDevice"));
+IOServiceMatching("IOPlatformExpertDevice"));
 #else
     io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
-                                                              IOServiceMatching("IOPlatformExpertDevice"));
+IOServiceMatching("IOPlatformExpertDevice"));
 #endif
 
 
@@ -48,7 +45,6 @@
 }
 
 + (NSString *)generateSurgeDeviceId{
-    
     NSMutableArray *rbx = [NSMutableArray array];
     io_service_t masterPort;
     io_service_t platformExpert;
@@ -68,16 +64,16 @@
         [rbx addObject:hwModel];
         NSLog(@"hw.model : %@",hwModel);
     }
-    size = sizeof(model); // 重新设置size
+    size = sizeof(model);
     if (sysctlbyname("machdep.cpu.brand_string", model, &size, NULL, 0) == 0) {
         NSString *cpu = [NSString stringWithUTF8String:model];
         [rbx addObject:cpu];
         NSLog(@"machdep.cpu.brand_string : %@",cpu);
     }
+
     int64_t signature = 0;
     size_t signatureSize = sizeof(signature);
     if (sysctlbyname("machdep.cpu.signature",  &signature, &signatureSize, NULL, 0) == 0) {
-        
         NSNumber *numberSignature = [NSNumber numberWithLongLong:signature];
         [rbx addObject:numberSignature];
         NSLog(@"machdep.cpu.signature: %@", numberSignature);
@@ -95,16 +91,13 @@
         NSLog(@"hw.memsize: %s", "#");
     }
     bool ActivationCompatibilityMode = false;
-    
     CWWiFiClient *wifiClient = [CWWiFiClient sharedWiFiClient];
     CWInterface *wifiInterface = [wifiClient interface];
     NSString *hardwareAddress = [wifiInterface hardwareAddress];
     NSLog(@"Hardware Address: %@", hardwareAddress);
     [rbx addObject:hardwareAddress];
-    
     if (!ActivationCompatibilityMode) {
     }
-    
     NSString *joinedString = [rbx componentsJoinedByString:@"/"];
     NSLog(@"joinedString %@", joinedString);
     NSString *deviceIdMD5 = [self calculateMD5:joinedString];
@@ -132,22 +125,17 @@
     SecKeyRef publicKey, privateKey;
     CFErrorRef error = NULL;
     privateKey = SecKeyCreateRandomKey((__bridge CFDictionaryRef)parameters, &error);
-    if (error != NULL) {       
+    if (error != NULL) {
         NSLog(@"密钥生成失败: %@", error);
         return nil;
     }
-    
     publicKey = SecKeyCopyPublicKey(privateKey);
     NSData *publicKeyData = CFBridgingRelease(SecKeyCopyExternalRepresentation(publicKey, nil));
     NSData *privateKeyData = CFBridgingRelease(SecKeyCopyExternalRepresentation(privateKey, nil));
-    
     if (is_pkcs8) {
         publicKeyData = [self addPublicKeyHeader:publicKeyData];
         privateKeyData = [self addPrivateKeyHeader:privateKeyData];
     }
-    
-    
-    
     NSString *publicKeyString = [self convertToPEMFormat:publicKeyData withKeyType:@"PUBLIC"];
     NSString *privateKeyString = [self convertToPEMFormat:privateKeyData withKeyType:@"PRIVATE"];
     return @{
@@ -174,15 +162,13 @@
         (__bridge id)kSecAttrKeyType: (__bridge id)kSecAttrKeyTypeRSA,
         (__bridge id)kSecAttrKeyClass: (__bridge id)kSecAttrKeyClassPrivate,
     };
-    
     SecKeyRef privateKey = NULL;
+
     CFErrorRef error = NULL;
     privateKey = SecKeyCreateWithData((__bridge CFDataRef)privateKeyData, (__bridge CFDictionaryRef)attributes, &error);
     SecKeyAlgorithm algorithm = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
     CFDataRef signedDataRef = SecKeyCreateSignature(privateKey, algorithm, (__bridge CFDataRef)data, &error);
-    
     NSData *signedData = (__bridge NSData *)signedDataRef;
-    
     if (error != NULL) {
         NSLog(@"Signature generation failed: %@", (__bridge NSError *)error);
         if (signedDataRef != NULL) {
@@ -190,18 +176,14 @@
         }
         return nil;
     }
-    
     return signedData;
 }
 
 
 + (BOOL)verifySignatureWithBase64:(NSString *)policy signature:(NSString *)sign publicKey:(NSString *)publicKeyString isPKCS8:(bool)is_pkcs8{
-    
     NSData *policyData = [[NSData alloc] initWithBase64EncodedString:policy options:0];
     NSData *signData = [[NSData alloc] initWithBase64EncodedString:sign options:0];
     return [self verifySignatureWithByte:policyData signature:signData publicKey:publicKeyString isPKCS8:(bool)is_pkcs8];
-    
-    
 }
 
 + (BOOL)verifySignatureWithByte:(NSData *)policyData signature:(NSData *)signData publicKey:(NSString *)publicKeyString isPKCS8:(bool)is_pkcs8{
@@ -211,6 +193,7 @@
     [cleanedComponents removeObject:@"-----BEGIN PUBLIC KEY-----"];
     [cleanedComponents removeObject:@"-----END PUBLIC KEY-----"];
     NSString *cleanedString = [cleanedComponents componentsJoinedByString:@""];
+
     NSData *publicKeyData = [[NSData alloc] initWithBase64EncodedString:cleanedString options:NSDataBase64DecodingIgnoreUnknownCharacters];
     if (is_pkcs8) {
         publicKeyData = [self removePublicKeyHeader:publicKeyData];
@@ -219,22 +202,20 @@
         (__bridge id)kSecAttrKeyType: (__bridge id)kSecAttrKeyTypeRSA,
         (__bridge id)kSecAttrKeyClass: (__bridge id)kSecAttrKeyClassPublic,
     };
-    
     SecKeyRef publicKey = NULL;
     CFErrorRef error1 = NULL;
     publicKey = SecKeyCreateWithData((__bridge CFDataRef)publicKeyData, (__bridge CFDictionaryRef)attributes, &error1);
-    
     SecKeyAlgorithm algorithm = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
     BOOL verificationResult = SecKeyVerifySignature(publicKey, algorithm, (__bridge CFDataRef)policyData, (__bridge CFDataRef)signData, NULL);
-    
     return verificationResult;
 }
+
 + (NSString *)convertToPEMFormat:(NSData *)keyData withKeyType:(NSString *)keyType {
     NSString *header = [NSString stringWithFormat:@"-----BEGIN %@ KEY-----\n", keyType];
     NSString *footer = [NSString stringWithFormat:@"-----END %@ KEY-----", keyType];
-    
     NSString *base64Key = [keyData base64EncodedStringWithOptions:0];
     NSMutableString *pemKey = [NSMutableString stringWithString:header];
+
     NSInteger length = [base64Key length];
     for (NSInteger i = 0; i < length; i += 64) {
         NSInteger remainingLength = length - i;
@@ -243,9 +224,7 @@
         [pemKey appendString:line];
         [pemKey appendString:@"\n"];
     }
-    
     [pemKey appendString:footer];
-    
     return pemKey;
 }
 
@@ -254,10 +233,8 @@
         0x30, 0x82, 0x01, 0x22, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,
         0x01, 0x05, 0x00, 0x03, 0x82, 0x01, 0x0f, 0x00
     };
-    
     NSMutableData *result = [NSMutableData dataWithBytes:pkcs8_header length:sizeof(pkcs8_header)];
     [result appendData:d_key];
-    
     return result;
 }
 
@@ -266,31 +243,24 @@
         0x30, 0x82, 0x01, 0x2f, 0x02, 0x01, 0x00, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
         0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x04, 0x82, 0x01, 0x1b
     };
-    
     NSMutableData *result = [NSMutableData dataWithBytes:pkcs8_header length:sizeof(pkcs8_header)];
     [result appendData:d_key];
-    
     return result;
 }
-    
 
 + (NSData *)removePublicKeyHeader:(NSData *)d_key {
     NSUInteger headerLength = 24;
-    
     if (d_key.length <= headerLength) {
         return nil; // Invalid key data
     }
-    
     return [d_key subdataWithRange:NSMakeRange(headerLength, d_key.length - headerLength)];
 }
 
 + (NSData *)removePrivateKeyHeader:(NSData *)d_key {
     NSUInteger headerLength = 26;
-    
     if (d_key.length <= headerLength) {
         return nil; // Invalid key data
     }
-    
     return [d_key subdataWithRange:NSMakeRange(headerLength, d_key.length - headerLength)];
 }
 
@@ -298,7 +268,6 @@
 + (NSData *)cccEncryptData:(NSData *)data withKey:(NSData *)key iv:(NSData *)iv {
     NSMutableData *encryptedData = [NSMutableData dataWithLength:data.length + kCCBlockSizeAES128];
     size_t encryptedDataLength = 0;
-    
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
                                           kCCAlgorithmAES,
                                           kCCOptionPKCS7Padding,
@@ -310,19 +279,16 @@
                                           encryptedData.mutableBytes,
                                           encryptedData.length,
                                           &encryptedDataLength);
-    
     if (cryptStatus == kCCSuccess) {
         encryptedData.length = encryptedDataLength;
         return encryptedData;
     }
-    
     return nil;
 }
 
 + (NSData *)cccDecryptData:(NSData *)data withKey:(NSData *)key iv:(NSData *)iv {
     NSMutableData *decryptedData = [NSMutableData dataWithLength:data.length + kCCBlockSizeAES128];
     size_t decryptedDataLength = 0;
-    
     CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt,
                                           kCCAlgorithmAES,
                                           kCCOptionPKCS7Padding,
@@ -334,12 +300,10 @@
                                           decryptedData.mutableBytes,
                                           decryptedData.length,
                                           &decryptedDataLength);
-    
     if (cryptStatus == kCCSuccess) {
         decryptedData.length = decryptedDataLength;
         return decryptedData;
     }
-    
     return nil;
 }
 
@@ -369,5 +333,21 @@
     }
 
     return hashString;
+}
+
++ (NSString *)getTextBetween:(NSString *)startText and:(NSString *)endText inString:(NSString *)inputString {
+    NSRange startRange = [inputString rangeOfString:startText];
+    if (startRange.location == NSNotFound) {
+        return nil;
+    }
+    NSRange searchRange;
+    searchRange.location = startRange.location + startRange.length;
+    searchRange.length = inputString.length - searchRange.location;
+    NSRange endRange = [inputString rangeOfString:endText options:0 range:searchRange];
+    if (endRange.location == NSNotFound) {
+        return nil;
+    }
+    NSRange resultRange = NSMakeRange(searchRange.location, endRange.location - searchRange.location);
+    return [inputString substringWithRange:resultRange];
 }
 @end

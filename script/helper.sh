@@ -67,4 +67,4 @@ xattr "${insert_dylib}"
 printf "${GREEN}✅ [${app_name}] - dylib_dobby_hook Injection completed successfully.${NC}\n"
 
 resign_app "/Applications/${app_name}.app"
-printf "${GREEN}✅ [${app_name}] - Resigned successfully.${NC}\n"
+printf "${GREEN}🔧 [${app_name}] - Resigned.${NC}\n"

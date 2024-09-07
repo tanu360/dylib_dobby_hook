@@ -1,4 +1,3 @@
-
 #ifndef CommonRetOC_h
 #define CommonRetOC_h
 #import "HackProtocol.h"
@@ -12,8 +11,6 @@
 - (int)ret0;
 + (int)ret1;
 + (int)ret0;
-
-
 
 + (id)hook_defaultStore;
 - (id)hook_NSFileManager:containerIdentifier;

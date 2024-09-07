@@ -1,4 +1,3 @@
-
 #import <Foundation/Foundation.h>
 
 @interface MemoryUtils : NSObject
@@ -12,9 +11,7 @@
 + (NSString *)readMachineCodeStringAtAddress:(uintptr_t)address length:(int)length;
 + (void)writeMachineCodeString:(NSString *)codeString toAddress:(uintptr_t)address;
 
-
-+ (uintptr_t)getCurrentArchFileOffset: (NSString *) filePath;
-
++ (uintptr_t)getCurrentArchFileOffset:(NSString *)filePath;
 
 + (void)saveMachineCodeOffsetsToUserDefaults:(NSString *)searchMachineCode offsets:(NSArray<NSNumber *> *)offsets;
 + (NSArray<NSNumber *> *)loadMachineCodeOffsetsFromUserDefaults:(NSString *)searchMachineCode;
@@ -28,7 +25,7 @@
 
 + (int)indexForImageWithName:(NSString *)imageName;
 
-+ (void)listAllPropertiesMethodsAndVariables:(Class) cls;
++ (void)listAllPropertiesMethodsAndVariables:(Class)cls;
 + (void)inspectObjectWithAddress:(void *)address;
 + (void)exAlart:(NSString *)title message:(NSString *)message;
 
@@ -36,7 +33,6 @@
 + (IMP)hookClassMethod:(Class)originalClass originalSelector:(SEL)originalSelector swizzledClass:(Class)swizzledClass swizzledSelector:(SEL)swizzledSelector;
 + (IMP)replaceInstanceMethod:(Class)originalClass originalSelector:(SEL)originalSelector swizzledClass:(Class)swizzledClass swizzledSelector:(SEL)swizzledSelector;
 + (IMP)replaceClassMethod:(Class)originalClass originalSelector:(SEL)originalSelector swizzledClass:(Class)swizzledClass swizzledSelector:(SEL)swizzledSelector;
-
 
 + (id)getInstanceIvar:(Class)cls ivarName:(const char *)ivarName;
 + (void)setInstanceIvar:(Class)slf ivarName:(const char *)ivarName value:(id)value;

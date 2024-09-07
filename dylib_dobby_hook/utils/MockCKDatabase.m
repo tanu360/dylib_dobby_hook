@@ -1,4 +1,3 @@
-
 #import <Foundation/Foundation.h>
 #import <CloudKit/CloudKit.h>
 #import "MockCKDatabase.h"

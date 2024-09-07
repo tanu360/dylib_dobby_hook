@@ -30,6 +30,20 @@ static IMP listenerIMP;
 }
 
 
+- (BOOL)hk_listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
+
+    NSLog(@">>>>>> hk_listener");
+
+    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:
+                                           NSProtocolFromString(@"_TtP31com_binarynights_ForkLiftHelper21ForkLiftHelperProtcol_")
+    ];
+    newConnection.exportedObject = self;
+    [newConnection resume];
+
+    return YES;
+}
+
+
 OSStatus hk_SecCodeCopySigningInformation_forklift(SecCodeRef codeRef, SecCSFlags flags, CFDictionaryRef *signingInfo) {
 
     OSStatus status = SecCodeCopySigningInformation_ori(codeRef, flags, signingInfo);
@@ -42,14 +56,11 @@ OSStatus hk_SecCodeCopySigningInformation_forklift(SecCodeRef codeRef, SecCSFlag
         CFDictionarySetValue(fakeDict,  kSecCodeInfoFlags, flagsVal);
         CFRelease(flagsVal);
     }
-   
     CFStringRef teamId = CFStringCreateWithCString(NULL, "J3CP9BBBN6", kCFStringEncodingUTF8);
     if (teamId) {
         CFDictionarySetValue(fakeDict,  kSecCodeInfoTeamIdentifier, teamId);
         CFRelease(teamId);
     }
-    
-    
     NSDictionary *entitlementsDict = @{
         @"com.apple.security.cs.allow-dyld-environment-variables": @0,
         @"com.apple.security.cs.allow-jit": @1,
@@ -62,17 +73,23 @@ OSStatus hk_SecCodeCopySigningInformation_forklift(SecCodeRef codeRef, SecCSFlag
 
     CFRelease(*signingInfo);
     *signingInfo = fakeDict;
-    
     NSLog(@">>>>>> hk_SecCodeCopySigningInformation_ori kSecCodeInfoFlags = %@", (CFNumberRef)CFDictionaryGetValue(*signingInfo, kSecCodeInfoFlags));
     NSLog(@">>>>>> hk_SecCodeCopySigningInformation_ori entitlementsDict = %@", (CFDictionaryRef)CFDictionaryGetValue(*signingInfo, kSecCodeInfoEntitlementsDict));
     NSLog(@">>>>>> hk_SecCodeCopySigningInformation_ori kSecCodeInfoTeamIdentifier = %@", (CFDictionaryRef)CFDictionaryGetValue(*signingInfo, kSecCodeInfoTeamIdentifier));
 
     return errSecSuccess;
 }
- 
+
 - (BOOL)hack {
-    DobbyHook(SecCodeCopySigningInformation, (void *)hk_SecCodeCopySigningInformation_forklift, (void *)&SecCodeCopySigningInformation_ori);
-    DobbyHook(SecCodeCheckValidityWithErrors, (void *)hk_SecCodeCheckValidityWithErrors, (void *)&SecCodeCheckValidityWithErrors_ori);    
+    Class ForkLiftHelper10HelperTool = NSClassFromString(@"_TtC31com_binarynights_ForkLiftHelper10HelperTool");
+    SEL listenerSel = NSSelectorFromString(@"listener:shouldAcceptNewConnection:");
+    Method listenerMethod = class_getInstanceMethod(ForkLiftHelper10HelperTool, listenerSel);
+    listenerIMP = method_getImplementation(listenerMethod);
+    [MemoryUtils hookInstanceMethod:ForkLiftHelper10HelperTool
+                   originalSelector:listenerSel
+                      swizzledClass:[self class]
+                   swizzledSelector:@selector(hk_listener:shouldAcceptNewConnection:)
+    ];
     return YES;
 }
 

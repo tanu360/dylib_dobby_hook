@@ -1,13 +1,13 @@
-
 #import <Foundation/Foundation.h>
 #import "Constant.h"
 #import "dobby.h"
 #import "MemoryUtils.h"
-#import "encryp_utils.h"
+#import "EncryptionUtils.h"
 #import <objc/runtime.h>
 #include <mach-o/dyld.h>
 #import "HackProtocolDefault.h"
 #import "common_ret.h"
+#import "URLSessionHook.h"
 
 @interface DummyURLSessionDataTask : NSObject
 @end
@@ -91,16 +91,12 @@ static IMP decryptDataIMP;
                                         downloadProgress:(void (^)(NSProgress *downloadProgress))downloadProgress
                                                  success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
                                                  failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failure {
-    if ([URLString containsString:@"tableplus.com"]) {
-        DummyURLSessionDataTask *dummyTask = [[DummyURLSessionDataTask alloc] init];
-        
-        
-        
+        if ([URLString containsString:@"tableplus.com"]) {
+        URLSessionHook *dummyTask = [[URLSessionHook alloc] init];
         if ([URLString containsString:@"v1/licenses/devices"]){
             NSMutableDictionary *result = [NSMutableDictionary dictionary];
             [result setObject:[EncryptionUtils generateTablePlusDeviceId] forKey:@"DeviceID"];
             [result setObject:@"2025-07-16" forKey:@"UpdatesAvailableUntilString"];
-            
             success(nil, @{
                 @"Data":result,
             });

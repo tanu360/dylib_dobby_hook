@@ -1,9 +1,8 @@
-
 #import <Foundation/Foundation.h>
 #import "Constant.h"
 #import "dobby.h"
 #import "MemoryUtils.h"
-#import "encryp_utils.h"
+#import "EncryptionUtils.h"
 #import <objc/runtime.h>
 #import "HackProtocolDefault.h"
 #include <sys/ptrace.h>
@@ -43,7 +42,6 @@ static NSString* licenseCode = @"123456789";
 
 -(NSString *) hk_defaultString{
     id ret = ((NSString *(*)(id,SEL))defaultStringIMP)(self,_cmd);
-    
     if ([self isEqualTo:@"SavedV3PurchaseEmail"]) {
         ret = [[Constant G_EMAIL_ADDRESS_FMT] performSelector:NSSelectorFromString(@"rot13")];
     } else if ([self isEqualTo:@"SavedV3PurchaseLicense"]) {
@@ -53,7 +51,6 @@ static NSString* licenseCode = @"123456789";
     }
     NSLog(@">>>>>> hk_defaultString %@:%@",self,ret);
     return ret;
-    
 }
 
 
@@ -66,16 +63,13 @@ static NSString* licenseCode = @"123456789";
     }
     NSLog(@">>>>>> hk_defaultInt %@:%d",self,ret);
     return ret;
-    
 }
 
 -(void) hk_refreshAuthentication{
-    
     SEL selector = NSSelectorFromString(@"setStatus:email:license:");
     if ([self respondsToSelector:selector]) {
         NSMethodSignature *methodSignature = [self methodSignatureForSelector:selector];
         if (methodSignature) {
-            
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
             [invocation setTarget:self];
             [invocation setSelector:selector];
@@ -91,7 +85,6 @@ static NSString* licenseCode = @"123456789";
 }
 
 - (NSMutableArray *) hk_directoryContents{
-    
     NSString* dylib_name = [Constant G_DYLIB_NAME];
     NSMutableArray* ret = ((NSMutableArray*(*)(id,SEL))directoryContentsIMP)(self,_cmd);
     if ([ret containsObject:dylib_name]) {
@@ -102,8 +95,6 @@ static NSString* licenseCode = @"123456789";
 
 
 +(id)hook_URLWithHost:(id)arg2 path:(id)arg3 query:(id)arg4 user:(id)arg5 password:(id)arg6 fragment:(id)arg7 scheme:(id)arg8 port:(id)arg9 {
-    
-    
     if ([arg2 isEqualToString:@"macupdater-backend.com"]) {
         if(([arg3 containsString:@".cgi"] && arg4!=nil )){
             arg4 = [arg4 stringByReplacingOccurrencesOfString:@"a=2" withString:@"a=0"];
@@ -113,9 +104,7 @@ static NSString* licenseCode = @"123456789";
             arg4 = [arg4 stringByReplacingOccurrencesOfString:[@"=" stringByAppendingString:licenseCode] withString:@"=(null)"];
         }
     }
-    
     NSLog(@">>>>>> hook_URLWithHost %@,%@,%@,%@,%@,%@",arg2,arg3,arg4,arg5,arg6,arg7);
-    
     id ret = ((id(*)(id,SEL,id,id,id,id,id,id,id,id))URLWithHostIMP)(self,_cmd,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
     return ret;
 }
@@ -145,23 +134,21 @@ static NSString* licenseCode = @"123456789";
 
 
 -(void)hk_URLSession:(NSURLSession *)arg2 didReceiveChallenge:(NSURLAuthenticationChallenge*)arg3 completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))arg4 {
-    
     if(arg4){
+
         arg4(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:arg3.protectionSpace.serverTrust]);
     }
 }
 
 
 - (id)hook_downloadURLWithSecurePOST:(NSURL *)url timeout:(NSTimeInterval)timeout{
-    
+
     NSString* path = [url path];
     if ([path isEqualToString:@"/configfile.cgi"]) {
         NSString *cacheDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
         NSString * cacheConfigFile = [cacheDir stringByAppendingPathComponent:@"com.corecode.MacUpdater/cache_configfile.cgi"];
-        
         NSFileManager *fileManager = [NSFileManager defaultManager];
         BOOL fileExists = [fileManager fileExistsAtPath:cacheConfigFile];
-        
         if (fileExists) {
             NSDictionary *attributes = [fileManager attributesOfItemAtPath:cacheConfigFile error:nil];
             NSDate *modificationDate = [attributes fileModificationDate];
@@ -184,10 +171,7 @@ static NSString* licenseCode = @"123456789";
         }
         return ret;
     }
-    
-    
     id ret = ((id(*)(id,SEL,NSURL*,NSTimeInterval))downloadURLWithSecurePOSTIMP)(self,_cmd,url,timeout);
-    
     return ret;
 }
 
@@ -197,8 +181,6 @@ static NSString* licenseCode = @"123456789";
                    swizzledClass:[self class]
                 swizzledSelector:@selector(hk_defaultString)
     ];
-
-            
     defaultIntIMP = [MemoryUtils hookInstanceMethod:NSClassFromString(@"__NSCFString")
                    originalSelector:NSSelectorFromString(@"defaultInt")
                    swizzledClass:[self class]
@@ -209,11 +191,13 @@ static NSString* licenseCode = @"123456789";
                    swizzledClass:[self class]
                 swizzledSelector:@selector(hk_refreshAuthentication)
     ];
+
     [MemoryUtils replaceClassMethod:NSClassFromString(@"LicenseHelper")
                    originalSelector:NSSelectorFromString(@"licenseIsPro:")
                    swizzledClass:[self class]
                 swizzledSelector:@selector(ret1)
     ];
+
     [MemoryUtils replaceClassMethod:objc_getClass("Meddle")
                 originalSelector:NSSelectorFromString(@"_isValidEmailAddress:")
                    swizzledClass:[self class]
@@ -229,9 +213,6 @@ static NSString* licenseCode = @"123456789";
                       swizzledClass:[self class]
                    swizzledSelector:@selector(hk_directoryContents)
     ];
-
-
-        
     checksumSparkleFrameworkIMP = [MemoryUtils hookClassMethod:NSClassFromString(@"AppDelegate")
                    originalSelector:NSSelectorFromString(@"checksumSparkleFramework")
                       swizzledClass:[self class]
@@ -260,7 +241,6 @@ static NSString* licenseCode = @"123456789";
                       swizzledClass:[self class]
                    swizzledSelector:NSSelectorFromString(@"hook_downloadURLWithSecurePOST:timeout:")
     ];
-    
     return YES;
 }
 

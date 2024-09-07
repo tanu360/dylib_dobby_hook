@@ -9,15 +9,17 @@ ALL_APPS_LIST=(
     "CleanShot X|/Applications/CleanShot X.app/Contents/Frameworks/LetsMove.framework/Versions/A/LetsMove"
     "Proxyman|/Applications/Proxyman.app/Contents/Frameworks/HexFiend.framework/Versions/A/HexFiend"
     "MacUpdater|/Applications/MacUpdater.app/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle"
-    "ForkLift|/Applications/ForkLift.app/Contents/Frameworks/UniversalDetector.framework/Versions/A/UniversalDetector|apps/forklift_hack.sh"
     "TablePlus|/Applications/TablePlus.app/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle"
     "Navicat Premium|/Applications/Navicat Premium.app/Contents/Frameworks/EE.framework/Versions/A/EE"
     "AirBuddy|/Applications/AirBuddy.app/Contents/Frameworks/LetsMove.framework/Versions/A/LetsMove"
     "Infuse|/Applications/Infuse.app/Contents/Frameworks/Differentiator.framework/Versions/A/Differentiator"
-    "IDA Professional 9.0|/Applications/IDA Professional 9.0.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus|apps/ida_hack.sh"
     "Paste"
     "DevUtils"
     "Transmit"
+
+    ## Fixed with helper scripts.
+    "ForkLift|/Applications/ForkLift.app/Contents/Frameworks/UniversalDetector.framework/Versions/A/UniversalDetector|apps/forklift_hack.sh"
+    "IDA Professional 9.0|/Applications/IDA Professional 9.0.app/Contents/Frameworks/QtDBus.framework/Versions/5/QtDBus|apps/ida_hack.sh"
 )
 
 find_paddle_apps() {
@@ -85,3 +87,4 @@ start() {
 printf "\n${GREEN}💉💉💉 dylib_dobby_hook Injector 🚀🚀🚀${NC}\n\n"
 printf "${GREEN}🤖 Injection Start...${NC}\n\n"
 start
+printf "${GREEN}✅ [${app_name}] - dylib_dobby_hook Injection completed successfully.${NC}\n"
